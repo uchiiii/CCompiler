@@ -85,7 +85,7 @@ Token *tokenize(char *p) {
       p++;
       continue;
     }
-    if (*p == '+' || *p == '-') {
+    if (strchr("+-*/()", *p)) {
       cur = new_token(TK_RESERVED, cur, p++);
       continue;
     }
@@ -96,7 +96,7 @@ Token *tokenize(char *p) {
       continue;
     }
 
-    error_at(p, "トークナイズできません");
+    error_at(p, "invalid token");
   }
 
   new_token(TK_EOF, cur, p);
@@ -107,6 +107,8 @@ Token *tokenize(char *p) {
 typedef enum {
   ND_ADD,
   ND_SUB,
+  ND_MUL,
+  ND_DIV,
   ND_NUM,
 } NodeKind;
 
@@ -139,13 +141,27 @@ Node *mul();
 Node *primary();
 
 Node *expr() {
-  Node *node = primary();
+  Node *node = mul();
   
   for(;;) {
     if(consume('+')) {
-      node = new_node(ND_ADD, node, primary());
+      node = new_node(ND_ADD, node, mul());
     } else if(consume('-')) {
-      node = new_node(ND_SUB, node, primary());
+      node = new_node(ND_SUB, node, mul());
+    } else {
+      return node;
+    }
+  }
+}
+
+Node *mul() {
+  Node *node = primary();
+
+  for(;;) {
+    if (consume('*')) {
+      node = new_node(ND_MUL, node, primary());
+    } else if(consume('/')) {
+      node = new_node(ND_DIV, node, primary());
     } else {
       return node;
     }
@@ -181,6 +197,13 @@ void gen(Node *node) {
     break;
   case ND_SUB:
     printf("  sub rax, rdi\n");
+    break;
+  case ND_MUL:
+    printf("  imul rax, rdi\n");
+    break;
+  case ND_DIV:
+    printf("  cqo\n");
+    printf("  idiv rdi\n");
     break;
   }
 
