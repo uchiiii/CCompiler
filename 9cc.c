@@ -8,18 +8,30 @@ int main(int argc, char **argv) {
 
   user_input = argv[1];
   // tokenize
-  token = tokenize(user_input);
+  tokenize();
 
   // token to AST
-  Node *node = expr();
+  program();
 
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
   printf("main:\n");
 
-  gen(node);
+  // prologue
+  // for variable from 'a' to 'z'
+  printf("  push rbp\n");
+  printf("  mov rbp, rsp\n");
+  printf("  sub rsp, 208\n");
 
-  printf("  pop rax\n");
+  for (int i = 0; code[i]; i++) {
+    gen(code[i]);
+    printf("  pop rax\n");
+  }
+  
+  // epilogue
+  // rax is still valid without dealing with it.
+  printf("  mov rsp, rbp\n");
+  printf("  pop rbp\n");
   printf("  ret\n");
   return 0;
 }

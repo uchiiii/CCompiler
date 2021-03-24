@@ -5,9 +5,13 @@
 #include <string.h>
 #include <stdbool.h>
 
+// input 
+extern char *user_input;
+
 // tokenize
 typedef enum {
   TK_RESERVED,
+  TK_IDENT,
   TK_NUM,
   TK_EOF,
 } TokenKind;
@@ -22,7 +26,7 @@ struct Token {
   int len;
 };
 
-Token *tokenize(char *p);
+void tokenize();
 
 extern Token *token;
 extern char *user_input;
@@ -38,24 +42,24 @@ typedef enum {
   ND_NE,  // !=
   ND_LT,  // <
   ND_LE,  // <=
+  ND_LVAR,
+  ND_ASSIGN,
 } NodeKind;
 
 typedef struct Node Node;
-
-Node *expr();
-Node *equality();
-Node *relational();
-Node *add();
-Node *mul();
-Node *unary();
-Node *primary();
 
 struct Node {
   NodeKind kind;
   Node *lhs;
   Node *rhs;
   int val;
+  int offset;
 };  
  
+extern Node *code[100];
+
+Node *expr(); 
+void program();
+
 // assembly code generation
 void gen(Node *node);
