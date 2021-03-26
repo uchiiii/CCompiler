@@ -13,6 +13,7 @@ typedef enum {
   TK_RESERVED,
   TK_IDENT,
   TK_NUM,
+  TK_RETURN,
   TK_EOF,
 } TokenKind;
 
@@ -26,9 +27,19 @@ struct Token {
   int len;
 };
 
+typedef struct LVar LVar;
+
+struct LVar {
+  LVar *next;
+  char *name;
+  int len;
+  int offset;
+};
+
 void tokenize();
 
 extern Token *token;
+extern LVar *locals;
 extern char *user_input;
 
 // construct AST
@@ -44,6 +55,7 @@ typedef enum {
   ND_LE,  // <=
   ND_LVAR,
   ND_ASSIGN,
+  ND_RETURN,
 } NodeKind;
 
 typedef struct Node Node;

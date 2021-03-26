@@ -21,11 +21,11 @@ int main(int argc, char **argv) {
   // for variable from 'a' to 'z'
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
-  printf("  sub rsp, 208\n");
+  printf("  sub rsp, %d\n", locals->offset);
 
   for (int i = 0; code[i]; i++) {
     gen(code[i]);
-    printf("  pop rax\n");
+    printf("  pop rax\n"); // set on rax
   }
   
   // epilogue

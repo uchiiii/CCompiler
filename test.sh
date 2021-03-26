@@ -52,4 +52,12 @@ assert 41 'c= 12 + 34 -  5 ;'
 assert 47 'd=5+6*7;'
 assert 26 'a=1;b=2;c=3;d=4;e=5;z=26;'
 
+assert 10 'cnt = 10;'
+assert 15 'num = 3 * 5;'
+assert 20 '3+3/1; res = 40 / 2;'
+
+assert 1  'return 1;'
+assert 10 'return 5 * 2;'
+assert 14 'a = 3;b = 5 * 6 - 8;return a + b / 2;'
+
 echo OK
