@@ -55,6 +55,8 @@ assert 26 'a=1;b=2;c=3;d=4;e=5;z=26;'
 assert 10 'cnt = 10;'
 assert 15 'num = 3 * 5;'
 assert 20 '3+3/1; res = 40 / 2;'
+assert 22 '3+3/1; res = 40 / 2; res = res + 2;'
+assert 10 'res = 2; res = res * 5;'
 
 assert 1  'return 1;'
 assert 10 'return 5 * 2;'
@@ -74,5 +76,9 @@ assert 3  'while(5 > 4) return 3; 0;'
 assert 0  'while(4 > 5) return 3; 0;'
 assert 5  'while(0) return 3; while(1) return 5; 3;'
 
+assert 3  'for(;;) return 3; 5;'
+assert 3  'for(0;;) return 3; 5;'
+assert 5  'for(;0;) return 3; 5;'
+assert 0  'j = 5; for(i = 0; i < 5; i = i+1) j = j - 1; j;'  
 
 echo OK

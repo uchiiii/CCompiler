@@ -361,7 +361,29 @@ Node *while_stmt() {
   return node;
 }
 
-Node *for_stmt() {}
+Node *for_stmt() {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_FOR;
+  node->val = n_labels++;
+  expect("(");
+  node->lhs = calloc(1, sizeof(Node));
+  node->rhs = calloc(1, sizeof(Node));
+  if(consume(";")) {} else {
+    node->lhs->lhs = expr();
+    expect(";");
+  }
+  if(consume(";")) {} else {
+    node->lhs->rhs = expr();
+    expect(";");
+  }
+  if(consume(")")) {} else {
+    node->rhs->rhs = expr();
+    expect(")");
+  }
+
+  node->rhs->lhs = stmt();
+  return node;
+}
 
 Node *stmt() {
   Node *node;
