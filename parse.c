@@ -32,6 +32,13 @@ bool consume_if() {
   return true;
 }
 
+bool consume_else() {
+  if (token->kind != TK_ELSE) return false;
+
+  token = token->next;
+  return true;
+}
+
 bool consume_while() {
   if (token->kind != TK_WHILE) return false;
 
@@ -145,6 +152,12 @@ void tokenize() {
     if (startswith(p, "if") && !is_alnum(p[2])) {
       cur = new_token(TK_IF, cur, p, 2);
       p += 2;
+      continue;
+    }
+
+    if (startswith(p, "else") && !is_alnum(p[4])) {
+      cur = new_token(TK_ELSE, cur, p, 4);
+      p += 4;
       continue;
     }
 
@@ -329,8 +342,11 @@ Node *if_stmt() {
   expect("(");
   node->lhs =  expr();
   expect(")");
-  node->rhs = stmt();
-  // (TODO) else stmt
+  node->rhs = calloc(1, sizeof(Node));
+  node->rhs->lhs = stmt();
+  if (consume_else()) {
+    node->rhs->rhs = stmt();
+  }
   return node;
 }
 

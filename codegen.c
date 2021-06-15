@@ -50,8 +50,11 @@ void gen(Node *node) {
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
-    printf("  je .Lend_IF_%d\n", node->val);
-    gen(node->rhs);
+    printf("  je .Lelse_IF_%d\n", node->val);
+    if (node->rhs->lhs != NULL) gen(node->rhs->lhs);
+    printf("  jmp .Lend_IF_%d\n", node->val);
+    printf(".Lelse_IF_%d:\n", node->val);
+    if (node->rhs->rhs != NULL) gen(node->rhs->rhs);
     printf(".Lend_IF_%d:\n", node->val);
     return;
   case ND_WHILE:
