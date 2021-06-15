@@ -325,6 +325,7 @@ Node *expr() {
 Node *if_stmt() {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_IF;
+  node->val = n_labels++;
   expect("(");
   node->lhs =  expr();
   expect(")");
@@ -336,6 +337,7 @@ Node *if_stmt() {
 Node *while_stmt() {
   Node *node = calloc(1, sizeof(Node));
   node->kind = ND_WHILE;
+  node->val = n_labels++;
   expect("(");
   node->lhs = expr();
   expect(")");

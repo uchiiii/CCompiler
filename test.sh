@@ -64,11 +64,13 @@ assert 3  'if(1) return 3;'
 assert 0  'if(0) return 3; 0;'
 assert 3  'if(1 > 0) return 3; 0;'
 assert 0  'if(4 > 5) return 3; 0;'
+assert 5  'if(0) return 3; if(1) return 5; 4;'
 
 assert 3  'while(1) return 3;'
 assert 0  'while(0) return 3; 0;'
 assert 3  'while(5 > 4) return 3; 0;'
 assert 0  'while(4 > 5) return 3; 0;'
+assert 5  'while(0) return 3; while(1) return 5; 3;'
 
 
 echo OK

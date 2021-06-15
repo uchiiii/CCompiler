@@ -70,7 +70,7 @@ struct Node {
   NodeKind kind;
   Node *lhs;
   Node *rhs;
-  int val;
+  int val; // This is used as an index for if, while and for.
   int offset;
 };  
  

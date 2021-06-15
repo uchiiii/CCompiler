@@ -50,19 +50,19 @@ void gen(Node *node) {
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
-    printf("  je .Lend_IF_XXX\n");
+    printf("  je .Lend_IF_%d\n", node->val);
     gen(node->rhs);
-    printf(".Lend_IF_XXX:\n");
+    printf(".Lend_IF_%d:\n", node->val);
     return;
   case ND_WHILE:
-    printf(".Lbegin_WHILE_XXX:\n");
+    printf(".Lbegin_WHILE_%d:\n", node->val);
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
-    printf("  je .Lend_WHILE_XXX\n");
+    printf("  je .Lend_WHILE_%d\n", node->val);
     gen(node->rhs);
-    printf("  jmp .Lbegin_WHILE_XXX\n");
-    printf(".Lend_WHILE_XXX:\n");
+    printf("  jmp .Lbegin_WHILE_%d\n", node->val);
+    printf(".Lend_WHILE_%d:\n", node->val);
     return;
   }
   
