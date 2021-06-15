@@ -60,4 +60,15 @@ assert 1  'return 1;'
 assert 10 'return 5 * 2;'
 assert 14 'a = 3;b = 5 * 6 - 8;return a + b / 2;'
 
+assert 3  'if(1) return 3;'
+assert 0  'if(0) return 3; 0;'
+assert 3  'if(1 > 0) return 3; 0;'
+assert 0  'if(4 > 5) return 3; 0;'
+
+assert 3  'while(1) return 3;'
+assert 0  'while(0) return 3; 0;'
+assert 3  'while(5 > 4) return 3; 0;'
+assert 0  'while(4 > 5) return 3; 0;'
+
+
 echo OK

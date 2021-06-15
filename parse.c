@@ -25,11 +25,32 @@ bool consume(char *op) {
   return true;
 }
 
+bool consume_if() {
+  if (token->kind != TK_IF) return false;
+
+  token = token->next;
+  return true;
+}
+
+bool consume_while() {
+  if (token->kind != TK_WHILE) return false;
+
+  token = token->next;
+  return true;
+}
+
+bool consume_for() {
+  if (token->kind != TK_FOR) return false;
+
+  token = token->next;
+  return true;
+}
+
 bool consume_return() {
   if (token->kind != TK_RETURN) return false;
   
   token = token->next;
-  return false; 
+  return true; 
 }
 
 Token *consume_ident() {
@@ -108,7 +129,7 @@ void tokenize() {
       continue;
     }
     
-    if (strchr("+-*/()<>;=", *p)) {
+    if (strchr("+-*/()<>;={}", *p)) {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }
@@ -118,6 +139,24 @@ void tokenize() {
       char *q = p;
       cur->val = strtol(p, &p, 10);
       cur->len = p - q;
+      continue;
+    }
+
+    if (startswith(p, "if") && !is_alnum(p[2])) {
+      cur = new_token(TK_IF, cur, p, 2);
+      p += 2;
+      continue;
+    }
+
+    if (startswith(p, "while") && !is_alnum(p[5])) {
+      cur = new_token(TK_WHILE, cur, p, 5);
+      p += 5;
+      continue;
+    }
+
+    if (startswith(p, "for") && !is_alnum(p[3])) {
+      cur = new_token(TK_FOR, cur, p, 3);
+      p += 3;
       continue;
     }
 
@@ -145,6 +184,7 @@ void tokenize() {
 // construct AST
 Node *code[100];
 LVar *locals;
+int n_labels;
 
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
   Node *node = calloc(1, sizeof(Node));
@@ -282,6 +322,29 @@ Node *expr() {
   return assign();
 }
 
+Node *if_stmt() {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_IF;
+  expect("(");
+  node->lhs =  expr();
+  expect(")");
+  node->rhs = stmt();
+  // (TODO) else stmt
+  return node;
+}
+
+Node *while_stmt() {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_WHILE;
+  expect("(");
+  node->lhs = expr();
+  expect(")");
+  node->rhs = stmt();
+  return node;
+}
+
+Node *for_stmt() {}
+
 Node *stmt() {
   Node *node;
   
@@ -289,10 +352,17 @@ Node *stmt() {
     node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
     node->lhs = expr();
+    expect(";");
+  } else if(consume_if()) {
+    node = if_stmt();  
+  } else if(consume_while()) {
+    node = while_stmt();
+  } else if(consume_for()) {
+    node = for_stmt(); 
   } else {
     node = expr();
+    expect(";");
   }
-  expect(";");
   return node;
 }
 
