@@ -81,6 +81,14 @@ void gen(Node *node) {
     printf("  jmp .Lbegin_FOR_%d\n", node->val);
     printf(".Lend_FOR_%d:\n", node->val);
     return;
+  case ND_BLOCK:
+    while(node->next != NULL) {
+      gen(node->next);  
+      printf("  pop rax\n");
+      node = node->next;
+    }
+    printf("  push 1\n"); // this is dummy for "pop rax" in 9cc.h
+    return;
   }
   
   gen(node->lhs);

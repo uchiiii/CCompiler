@@ -243,8 +243,7 @@ Node *primary() {
       lvar->next = locals;
       lvar->name = tok->str;
       lvar->len = tok->len;
-      lvar->offset = locals->offset + 8;
-      node->offset = lvar->offset;
+      lvar->offset = locals->offset + 8; node->offset = lvar->offset;
       locals = lvar;
     }
     return node;
@@ -388,17 +387,25 @@ Node *for_stmt() {
 Node *stmt() {
   Node *node;
   
-  if (consume_return()) {
+  if (consume_return()) { // RETURN STATEMENT
     node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
     node->lhs = expr();
     expect(";");
-  } else if(consume_if()) {
+  } else if(consume_if()) { // IF STATEMENT
     node = if_stmt();  
-  } else if(consume_while()) {
+  } else if(consume_while()) { // WHILE STATEMENT
     node = while_stmt();
-  } else if(consume_for()) {
+  } else if(consume_for()) { // FOR STATEMENT
     node = for_stmt(); 
+  } else if(consume("{")) { // BLOCK
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_BLOCK;
+    Node *tail = node;
+    while(!consume("}")) {
+      tail->next = stmt();
+      tail = tail->next;
+    }
   } else {
     node = expr();
     expect(";");

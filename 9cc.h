@@ -63,6 +63,7 @@ typedef enum {
   ND_IF,
   ND_WHILE,
   ND_FOR,
+  ND_BLOCK,
 } NodeKind;
 
 typedef struct Node Node;
@@ -71,10 +72,11 @@ struct Node {
   NodeKind kind;
   Node *lhs;
   Node *rhs;
+  Node *next;
   int val; // This is used as an index for if, while and for.
   int offset;
 };  
- 
+
 extern Node *code[100];
 
 Node *stmt();

@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
   printf("main:\n");
 
   // prologue
-  // for variable from 'a' to 'z'
+  // for variable
   printf("  push rbp\n");
   printf("  mov rbp, rsp\n");
   printf("  sub rsp, %d\n", locals->offset);

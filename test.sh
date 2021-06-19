@@ -81,4 +81,11 @@ assert 3  'for(0;;) return 3; 5;'
 assert 5  'for(;0;) return 3; 5;'
 assert 0  'j = 5; for(i = 0; i < 5; i = i+1) j = j - 1; j;'  
 
+assert 0  '{} 0;'
+assert 1  'a = 0; {3; a = a+1;} a;'
+assert 4  'if (1) { return 4;} else return 0;'
+assert 10 'a = 0; for(i = 0; i < 10; i = i+1) { a = a + 1; } a;'
+assert 10 'a = 0; b = 0; for(i = 0; i < 10; i = i+1) { a = a + 1; b = b + 2;} a;'
+assert 20 'a = 0; b = 0; for(i = 0; i < 10; i = i+1) { a = a + 1; b = b + 2;} b;'
+
 echo OK
