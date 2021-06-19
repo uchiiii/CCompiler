@@ -58,6 +58,7 @@ typedef enum {
   ND_LT,  // <
   ND_LE,  // <=
   ND_LVAR,
+  ND_FUNCVAR,
   ND_ASSIGN,
   ND_RETURN,
   ND_IF,
@@ -73,6 +74,8 @@ struct Node {
   Node *lhs;
   Node *rhs;
   Node *next;
+  char *name; // for FUNCVAR
+  int len; // for FUNCVAR
   int val; // This is used as an index for if, while and for.
   int offset;
 };  
