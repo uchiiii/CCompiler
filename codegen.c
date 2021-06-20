@@ -1,4 +1,10 @@
+#include <assert.h>
 #include "9cc.h"
+
+const char *regi[] = {
+  "rdi", "rsi", "rdx", 
+  "rcx", "r8", "r9",
+};
 
 void error(char *fmt, ...) {
   va_list ap;
@@ -19,6 +25,10 @@ void gen_lval(Node *node) {
   printf("  push rax\n");
 }
 
+void align() {
+  // todo (align rsp to 0 (mod 16))
+}
+
 void gen(Node *node) {
   if(node == NULL) return;
   switch (node->kind) {
@@ -26,8 +36,19 @@ void gen(Node *node) {
     printf("  push %d\n", node->val);
     return;
   case ND_FUNCVAR:
-    printf("  call %.*s\n", node->len, node->name);
-   return;
+    {
+      Node *cur = node;
+      int var_len = 0;
+      while(cur->next) {
+        assert(var_len < 6);
+        gen(cur->next);
+        printf("  pop %s\n", regi[var_len++]);
+        cur = cur->next;
+      }
+      printf("  call %.*s\n", node->len, node->name);
+      printf("  push rax\n");
+      return;
+    }
   case ND_LVAR:
     gen_lval(node);
     printf("  pop rax\n");

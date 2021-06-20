@@ -136,7 +136,7 @@ void tokenize() {
       continue;
     }
     
-    if (strchr("+-*/()<>;={}", *p)) {
+    if (strchr("+-*/()<>;={},", *p)) {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }
@@ -233,13 +233,21 @@ Node *primary() {
   Token *tok = consume_ident();
   if (tok) {
     Node *node = calloc(1, sizeof(Node));
-    if (consume("(")) {
+    
+    if (consume("(")) { // FUNCVAR
       node->kind = ND_FUNCVAR;
       node->name = tok->str;
       node->len = tok->len;
-      expect(")");
+      if(consume(")")) return node;
+      Node *tail = node;
+      while(true) {
+        tail->next = expr();
+        tail = tail->next;
+        if(consume(")")) return node;
+        expect(",");
+      }
       return node;
-    } else {
+    } else { // LVAR
       node->kind = ND_LVAR;
       LVar *lvar = find_lvar(tok);
       if (lvar) {

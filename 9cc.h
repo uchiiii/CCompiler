@@ -1,9 +1,13 @@
+#ifndef _9CC_H_INCLUDED
+#define _9CC_H_INCLUDED
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdarg.h>
 #include <string.h>
 #include <stdbool.h>
+
 
 // input 
 extern char *user_input;
@@ -73,7 +77,7 @@ struct Node {
   NodeKind kind;
   Node *lhs;
   Node *rhs;
-  Node *next;
+  Node *next; // for stmtlist in BLOCK and arguments in FUNCVAR
   char *name; // for FUNCVAR
   int len; // for FUNCVAR
   int val; // This is used as an index for if, while and for.
@@ -88,3 +92,5 @@ void program();
 
 // assembly code generation
 void gen(Node *node);
+
+#endif
