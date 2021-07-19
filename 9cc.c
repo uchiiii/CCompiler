@@ -18,9 +18,10 @@ int main(int argc, char **argv) {
   { // for the definition of global functions
     printf(".globl ");
     for (int i = 0; code[i]; i++) {
-      printf("%.*s ", code[i]->len, code[i]->name);
+      if (i > 0) printf(", ");
+      printf("%.*s", code[i]->len, code[i]->name);
     }
-    printf("\n");
+    printf("\n\n");
   } 
 
 
@@ -40,7 +41,7 @@ int main(int argc, char **argv) {
     // rax is still valid without dealing with it.
     printf("  mov rsp, rbp\n");
     printf("  pop rbp\n");
-    printf("  ret\n");
+    printf("  ret\n\n");
   }
   
   return 0;

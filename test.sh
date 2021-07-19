@@ -6,8 +6,7 @@ assert() {
   ./9cc "$input" > tmp.s
   cc -o tmp tmp.s
   ./tmp
-  actual="$?"
-
+  actual="$?" 
   if [ "$actual" = "$expected" ]; then
     echo "$input => $actual"
   else
@@ -92,5 +91,11 @@ assert 4  'main() { if (1) { return 4;} else return 0; }'
 assert 10 'main() { a = 0; for(i = 0; i < 10; i = i+1) { a = a + 1; } return a;}'
 assert 10 'main() { a = 0; b = 0; for(i = 0; i < 10; i = i+1) { a = a + 1; b = b + 2;} return a;}'
 assert 20 'main() { a = 0; b = 0; for(i = 0; i < 10; i = i+1) { a = a + 1; b = b + 2;} return b;}'
+
+assert 2  'ident(a) { return a; }
+main() { return ident(2); }'
+assert 3  'add(a, b) { return a+b; } 
+main() { return add(1, 2); }'
+
 
 echo OK
