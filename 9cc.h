@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+#define MX_NFUNC 100
 
 // input 
 extern char *user_input;
@@ -47,7 +48,6 @@ struct LVar {
 void tokenize();
 
 extern Token *token;
-extern LVar *locals;
 extern char *user_input;
 
 // construct AST
@@ -63,6 +63,7 @@ typedef enum {
   ND_LE,  // <=
   ND_LVAR,
   ND_FUNCVAR,
+  ND_FUNCDEF,
   ND_ASSIGN,
   ND_RETURN,
   ND_IF,
@@ -75,16 +76,18 @@ typedef struct Node Node;
 
 struct Node {
   NodeKind kind;
-  Node *lhs;
-  Node *rhs;
-  Node *next; // for stmtlist in BLOCK and arguments in FUNCVAR
+  Node *lhs; // for args in FUNCDEF
+  Node *rhs; 
+  Node *next; // for stmtlist in BLOCK and FUNCDEF and arguments in FUNCVAR
   char *name; // for FUNCVAR
   int len; // for FUNCVAR
   int val; // This is used as an index for if, while and for.
   int offset;
 };  
 
-extern Node *code[100];
+extern Node *code[MX_NFUNC];
+extern LVar *locals[MX_NFUNC];
+
 
 Node *stmt();
 Node *expr(); 

@@ -2,6 +2,7 @@
 
 Token *token;
 char *user_input;
+int n_func = 0;
 
 void error_at(char *loc, char *fmt, ...) {
   va_list ap;
@@ -84,6 +85,12 @@ int expect_number() {
   int val = token->val;
   token = token->next;
   return val;
+}
+
+bool next_is(char *op) {
+  if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
+    return false;
+  else return true;
 }
 
 bool at_eof() {
@@ -195,8 +202,9 @@ void tokenize() {
 }
 
 // construct AST
-Node *code[100];
-LVar *locals;
+Node *code[MX_NFUNC];
+LVar *locals[MX_NFUNC];
+LVar *local_vars; // local variables for current functions
 int n_labels;
 
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
@@ -215,12 +223,24 @@ Node *new_node_num(int val) {
 }
 
 LVar *find_lvar(Token *tok) {
-  for (LVar *var = locals; var; var = var->next) {
+  for (LVar *var = local_vars; var; var = var->next) {
     if(var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
       return var;
     }
   }
   return NULL;
+}
+
+Node *args() {
+  if(next_is(")")) return NULL;
+  Node *node = expr();
+  Node *tail = node;
+  for(;consume(",");) {
+    tail->next = expr();
+    tail = tail->next;
+  }
+
+  return node;
 }
 
 Node *primary() {
@@ -238,14 +258,8 @@ Node *primary() {
       node->kind = ND_FUNCVAR;
       node->name = tok->str;
       node->len = tok->len;
-      if(consume(")")) return node;
-      Node *tail = node;
-      while(true) {
-        tail->next = expr();
-        tail = tail->next;
-        if(consume(")")) return node;
-        expect(",");
-      }
+      node->next = args();
+      consume(")");
       return node;
     } else { // LVAR
       node->kind = ND_LVAR;
@@ -254,11 +268,11 @@ Node *primary() {
         node->offset = lvar->offset;
       } else {
         lvar = calloc(1, sizeof(LVar));
-        lvar->next = locals;
+        lvar->next = local_vars;
         lvar->name = tok->str;
         lvar->len = tok->len;
-        lvar->offset = locals->offset + 8; node->offset = lvar->offset;
-        locals = lvar;
+        lvar->offset = local_vars->offset + 8; node->offset = lvar->offset;
+        local_vars = lvar;
       }
       return node;
     }
@@ -399,6 +413,20 @@ Node *for_stmt() {
   return node;
 }
 
+Node *block() {
+  expect("{");
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_BLOCK;
+  node->lhs = new_node_num(0); // dummy
+  Node *tail = node->lhs;
+  while(!consume("}")) {
+    tail->next = stmt();
+    tail = tail->next;
+  }
+
+  return node;
+}
+
 Node *stmt() {
   Node *node;
   
@@ -413,14 +441,8 @@ Node *stmt() {
     node = while_stmt();
   } else if(consume_for()) { // FOR STATEMENT
     node = for_stmt(); 
-  } else if(consume("{")) { // BLOCK
-    node = calloc(1, sizeof(Node));
-    node->kind = ND_BLOCK;
-    Node *tail = node;
-    while(!consume("}")) {
-      tail->next = stmt();
-      tail = tail->next;
-    }
+  } else if(next_is("{")) { // BLOCK
+    node = block();
   } else {
     node = expr();
     expect(";");
@@ -428,14 +450,35 @@ Node *stmt() {
   return node;
 }
 
-void program() {
-  // initialization with dummy 
-  locals = calloc(1, sizeof(LVar));
-  locals->offset = 0;
-
-  int i = 0;
-  while(!at_eof()) {
-    code[i++] = stmt();
+Node *def_func() {
+  Node *node = calloc(1, sizeof(Node)); 
+  node->kind = ND_FUNCDEF;
+  { // func name
+    Token *tok = consume_ident();
+    node->name = tok->str;
+    node->len = tok->len;
   }
-  code[i] = NULL;
+  { // args
+    expect("(");
+    node->lhs = args();
+    expect(")");
+  }
+
+  node->next = block();
+  return node;
+}
+
+void program() {
+
+  while(!at_eof()) {
+    // initialization with dummy 
+    local_vars = calloc(1, sizeof(LVar)); // TODO: free previous local_vars
+    local_vars->offset = 0;
+    
+    code[n_func] = def_func();
+    locals[n_func] = local_vars;
+
+    n_func += 1;
+  }
+  code[n_func] = NULL;
 }

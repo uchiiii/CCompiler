@@ -49,6 +49,25 @@ void gen(Node *node) {
       printf("  push rax\n");
       return;
     }
+  case ND_FUNCDEF:
+    {
+      // load args from regi to stack
+      Node *arg_node = node->lhs;
+      int arg_len = 0;
+      while(arg_node != NULL) {
+        assert(arg_len < 6);
+
+        gen_lval(arg_node);
+        printf("  mov [rax], %s\n", regi[arg_len]);
+
+        arg_node = arg_node->next;
+        arg_len += 1;
+      }
+
+      // execute the content
+      gen(node->next);
+      return;
+    }
   case ND_LVAR:
     gen_lval(node);
     printf("  pop rax\n");
@@ -106,6 +125,7 @@ void gen(Node *node) {
     printf(".Lend_FOR_%d:\n", node->val);
     return;
   case ND_BLOCK:
+    node = node->lhs;
     while(node->next != NULL) {
       gen(node->next);  
       printf("  pop rax\n");
