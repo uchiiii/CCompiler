@@ -128,7 +128,6 @@ void gen(Node *node) {
     node = node->lhs;
     while(node->next != NULL) {
       gen(node->next);  
-      printf("  pop rax\n");
       node = node->next;
     }
     printf("  push 1\n"); // this is dummy for "pop rax" in 9cc.h

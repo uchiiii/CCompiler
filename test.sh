@@ -94,8 +94,23 @@ assert 20 'main() { a = 0; b = 0; for(i = 0; i < 10; i = i+1) { a = a + 1; b = b
 
 assert 2  'ident(a) { return a; }
 main() { return ident(2); }'
+assert 4  'ident(a) { return a; }
+main() { return ident(1) + ident(3); }'
 assert 3  'add(a, b) { return a+b; } 
 main() { return add(1, 2); }'
-
+assert 13  'linear(a, x, b) { return a*x+b; } 
+main() { return linear(2, 5, 3); }'
+assert 6 \
+'sum(x) { if (x == 1) return 1; return sum(x-1) + x; }
+main() {return sum(3);}'
+assert 1 \
+'fib(x) { if (x == 0) return 1; if (x == 1) return 1; return fib(x - 1) + fib(x - 2); }
+main() { return fib(0); }'
+assert 1 \
+'fib(x) { if (x == 0) return 1; if (x == 1) return 1; return fib(x - 1) + fib(x - 2); }
+main() { return fib(1); }'
+assert 5 \
+'fib(x) { if (x == 0) return 1; if (x == 1) return 1; return fib(x - 1) + fib(x - 2); }
+main() { return fib(4); }'
 
 echo OK
