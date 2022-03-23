@@ -26,6 +26,12 @@ bool consume(char *op) {
   return true;
 }
 
+bool consume_type() {
+  if (token->kind != TK_TYPE) return false;
+  token = token->next;
+  return true;
+}
+
 bool consume_if() {
   if (token->kind != TK_IF) return false;
 
@@ -71,6 +77,19 @@ Token *consume_ident() {
   return ident;
 }
 
+/*
+ * check_hoge does not consume token,
+ * but just return token.
+ */
+Token *check_ident() {
+  if (token->kind != TK_IDENT) {
+    return NULL;
+  }
+  
+  Token *ident = token;
+  return ident;
+}
+
 void expect(char *op) {
   if (token->kind != TK_RESERVED || strlen(op) != token->len || memcmp(token->str, op, token->len))
     error_at(token->str, "expected \"%s\"", op);
@@ -85,6 +104,13 @@ int expect_number() {
   int val = token->val;
   token = token->next;
   return val;
+}
+
+void expect_type() {
+  if (token->kind != TK_TYPE) {
+    error_at(token->str, "型ではありません");
+  }
+  token = token->next;
 }
 
 bool next_is(char *op) {
@@ -185,6 +211,12 @@ void tokenize() {
       p += 6;
       continue;
     }
+
+    if (strncmp(p, "int", 3) == 0 && !is_alnum(p[3])) {
+      cur = new_token(TK_TYPE, cur, p, 3);
+      p += 3;
+      continue;
+    } 
     
     int len = search_lvar(p);
     if (len) {
@@ -250,6 +282,7 @@ Node *primary() {
     return node;
   }
 
+
   Token *tok = consume_ident();
   if (tok) {
     Node *node = calloc(1, sizeof(Node));
@@ -267,12 +300,7 @@ Node *primary() {
       if (lvar) {
         node->offset = lvar->offset;
       } else {
-        lvar = calloc(1, sizeof(LVar));
-        lvar->next = local_vars;
-        lvar->name = tok->str;
-        lvar->len = tok->len;
-        lvar->offset = local_vars->offset + 8; node->offset = lvar->offset;
-        local_vars = lvar;
+        error_at(tok->str, "\"%.*s\" is not decleared", tok->len, tok->str);
       }
       return node;
     }
@@ -365,7 +393,25 @@ Node *assign() {
   return node;
 }
 
+Node *decl_var() {
+  Token *tok = check_ident();
+
+  // (TODO) avoid same name
+  
+  LVar *lvar = calloc(1, sizeof(LVar));
+  lvar->next = local_vars;
+  lvar->name = tok->str;
+  lvar->len = tok->len;
+  lvar->offset = local_vars->offset + 8; 
+  local_vars = lvar;
+
+  return assign();
+}
+
 Node *expr() {
+  if(consume_type()) {
+    return decl_var();
+  }
   return assign();
 }
 
@@ -459,6 +505,7 @@ Node *stmt() {
 Node *def_func() {
   Node *node = calloc(1, sizeof(Node)); 
   node->kind = ND_FUNCDEF;
+  expect_type();
   { // func name
     Token *tok = consume_ident();
     node->name = tok->str;
