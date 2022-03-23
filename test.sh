@@ -112,5 +112,9 @@ main() { return fib(1); }'
 assert 5 \
 'fib(x) { if (x == 0) return 1; if (x == 1) return 1; return fib(x - 1) + fib(x - 2); }
 main() { return fib(4); }'
+ 
+assert 3 'main() { x = 3; y = &x; return *y; }'
+assert 3 \
+'main() { x = 3; y = 5; z = &y + 8; return *z;  }'
 
 echo OK

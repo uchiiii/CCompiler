@@ -62,6 +62,8 @@ typedef enum {
   ND_LT,  // <
   ND_LE,  // <=
   ND_LVAR,
+  ND_ADDR,
+  ND_DEREF,
   ND_FUNCVAR,
   ND_FUNCDEF,
   ND_ASSIGN,

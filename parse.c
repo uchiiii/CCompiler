@@ -143,7 +143,7 @@ void tokenize() {
       continue;
     }
     
-    if (strchr("+-*/()<>;={},", *p)) {
+    if (strchr("+-*/()<>;={},&", *p)) {
       cur = new_token(TK_RESERVED, cur, p++, 1);
       continue;
     }
@@ -286,6 +286,12 @@ Node *unary() {
   }
   if (consume("-")) {
     return new_node(ND_SUB, new_node_num(0), unary());
+  }
+  if (consume("&")) {
+    return new_node(ND_ADDR, primary(), NULL);
+  }
+  if (consume("*")) {
+    return new_node(ND_DEREF, primary(), NULL); 
   }
   return primary();
 }
